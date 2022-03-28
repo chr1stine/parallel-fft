@@ -38,34 +38,22 @@ CArray fft_iter(CArray &x)
     CArray y = CArray(N);
 
     // complex computations
-    Complex wn = Complex(double(2) * PI * 1i / double(N));
+    Complex wN = polar(1., double(2) * PI / double(N));
+    Complex wN2 = polar(1., double(2) * PI / double(N / 2));
 
-    for (int i = 0; i < N / 2; i++)
+    for (int k = 0; k < N; k++)
     {
-        y[i] = 0;
-        y[i + N / 2] = 0;
-        y[i + 1] = 0;
-        y[i + N / 2 + 1] = 0;
-        for (int j = 0; j < N / 2; j++)
+        Complex wkN = pow(wN, k);
+        Complex even_sum = 0;
+        Complex odd_sum = 0;
+        for (int n = 0; n < N / 2; n++)
         {
-            auto t1 = pow(wn, i * j);
-            y[i] += (x[j] + x[j + N / 2]) * t1;
-            y[i + N / 2] += (x[j] + x[j + N / 2]) * t1;
-            y[i + 1] += (x[j] - x[j + N / 2]) * pow(wn, j) * t1;
+            Complex t1 = pow(wN2, -k * n);
+            even_sum += (x[2 * n]) * t1;
+            odd_sum += (x[2 * n + 1]) * t1;
         }
+        y[k] = even_sum + odd_sum * wkN;
     }
-
-    // CArray wns = CArray(N / 2);
-    // for (int i = 0; i < N / 2; i++)
-    // {
-    //     wns[i] = pow(wn_const, i);
-    // }
-    // for (size_t k = 0; k < N / 2; ++k)
-    // {
-    //     Complex t = std::polar(1.0, -2 * PI * k / N) * x[k + N / 2];
-    //     y[k] = x[k] + t;
-    //     y[k + N / 2] = x[k] - t;
-    // }
 
     // swapping indices
     // x = new_indices;
