@@ -12,3 +12,7 @@
 4. исправить итеративный вариант fft
 5. добавить threads
 6. реализовать padding входного вектора до степени двойки
+
+### random
+
+O(log(N)) - time complexity of built-in pow function implementation in c/c++ [сурс](https://discuss.codechef.com/t/built-in-power-function-complexity/8901)
