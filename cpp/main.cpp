@@ -11,7 +11,7 @@ typedef std::valarray<Complex> CArray;
 
 using namespace std;
 
-unsigned int reverseBits(unsigned int n, int bits)
+unsigned int reverse_bits(unsigned int n, int bits)
 {
     int reverse = 0;
     int pos = 0;
@@ -27,12 +27,12 @@ CArray fft_iter(CArray &x)
 {
     // rearranging original indices
     int N = x.size();
-    int *new_indices = new int[N];
+    int *rearranged_indices = new int{N};
     for (int i = 0; i < N / 2; i++)
     {
-        int new_index = reverseBits(i, log2(N));
-        new_indices[i] = new_index;
-        new_indices[new_index] = i;
+        int rearranged_index = reverse_bits(i, log2(N));
+        rearranged_indices[i] = rearranged_index;
+        rearranged_indices[rearranged_index] = i;
     }
 
     CArray y = CArray(N);
@@ -54,29 +54,32 @@ CArray fft_iter(CArray &x)
         }
         y[k] = even_sum + odd_sum * wkN;
     }
-
+    delete rearranged_indices;
     // swapping indices
     // x = new_indices;
     return y;
 }
 
-bool parse_one_line(string line, double &number)
+double parse_one_line(string line)
 {
+    double number;
     try
     {
         number = stof(line);
-        return true;
+        return number;
     }
     catch (const invalid_argument &e)
     {
-        return false;
+        throw "Error when parsing number";
     }
 }
 
-bool read_input_file(char *file_name, CArray &input_array, int &n)
+CArray read_input_file(char *file_name, int &n)
 {
-    ifstream myfile(file_name);
+    ifstream myfile{file_name};
     string line;
+    CArray input_array{};
+
     if (myfile.is_open())
     {
         getline(myfile, line, '\n');
@@ -88,16 +91,13 @@ bool read_input_file(char *file_name, CArray &input_array, int &n)
         while (getline(myfile, line, '\n'))
         {
             double parsed_umber;
-            if (parse_one_line(line, parsed_umber))
-                input_array[i] = parsed_umber;
-            else
-                return false;
+            input_array[i] = parse_one_line(line);
             i++;
         }
         myfile.close();
     }
 
-    return true;
+    return input_array;
 }
 
 int main(int argc, char **argv)
@@ -106,11 +106,12 @@ int main(int argc, char **argv)
     int n;
     if (argc == 2)
     {
-        if (read_input_file(argv[1], input, n))
+        try
         {
+            input = read_input_file(argv[1], n);
             std::cout << "Successfully parsed input" << std::endl;
         }
-        else
+        catch (...)
         {
             std::cout << "Error parsing input" << std::endl;
             return 1;
