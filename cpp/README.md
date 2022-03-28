@@ -16,3 +16,5 @@
 ### random
 
 O(log(N)) - time complexity of built-in pow function implementation in c/c++ [сурс](https://discuss.codechef.com/t/built-in-power-function-complexity/8901)
+
+сложность функции `reverse_bits`: O(log(n)), т.к. битовые операции константны(О(1)), и они применяются в цикле по количеству бит в бинарном представлении количества элементов в массиве
