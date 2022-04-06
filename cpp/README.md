@@ -6,7 +6,7 @@
 
 ### compiling
 
-`g++ ./cpp/main.cpp ./cpp/reading_input.cpp -o ./cpp/main`
+`g++ -pthread ./cpp/main.cpp ./cpp/reading_input.cpp -o ./cpp/main`
 
 ### running
 
