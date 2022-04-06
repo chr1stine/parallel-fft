@@ -4,6 +4,14 @@
 
 [как работать с thread](https://habr.com/ru/post/182610/)
 
+### compiling
+
+`g++ ./cpp/main.cpp ./cpp/reading_input.cpp -o ./cpp/main`
+
+### running
+
+`./cpp/main ./tests/input1`
+
 ### план по коду
 
 1. <s>парсинг действительных чисел</s>
