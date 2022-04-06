@@ -37,11 +37,14 @@ CArray read_input_file(char *file_name, int &n)
         int i = 0;
         while (getline(myfile, line, '\n'))
         {
-            double parsed_umber;
             input_array[i] = parse_one_line(line);
             i++;
         }
         myfile.close();
+    }
+    
+    if (n == 0){
+        throw "file is empty";
     }
 
     return input_array;
