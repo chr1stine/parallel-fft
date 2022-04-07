@@ -1,10 +1,15 @@
+original.cpp - образец функции на rosetta code, реализованный последовательно и рекурсивно. В main две функции: fft_iter - итеративный последовательный вариант
+
 ### compiling
 
 `g++ -pthread ./cpp/main.cpp ./cpp/reading_input.cpp -o ./cpp/main`
 
 ### running
 
-`./cpp/main ./tests/input1`
+Первым аргументом передается путь к файлу с входным вектором. Вторым опциональным аргументом передается количество потоков для распараллеливания.
+
+- `./cpp/main ./tests/input1` 
+- `./cpp/main ./tests/input1 2` 
 
 ### план по коду
 
