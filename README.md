@@ -17,7 +17,7 @@
 1. Считывается входной вектор X, который надо преобразовать, его длина N = |X|.
 2. Вычисляется первообразный Nn-й корень из единицы wn, по формуле: wN = e^(-2pi/N) = cos(2p/N)+i * sin(2p/N). тут i - мнимая единица
 
-![twiddle base](./fft-parallel/images_for_readme/twiddle_base_formula.png)
+![twiddle base](./images_for_readme/twiddle_base_formula.png)
 
 3. Вычисляется матрица A коэффициентов (twiddle coefficients) по следующей формуле: каждый элемент aij = wN^(i * j)
 4. Матрица A умножается на X. Результат A * X = Y и есть дискретное преобразование Фурье
@@ -26,7 +26,7 @@
 
 Т.о. один элемент выходного вектор можно получить по следующей формуле:
 
-![dft](./fft-parallel/images_for_readme/dft_formula.png)
+![dft](./images_for_readme/dft_formula.png)
 
 ## FFT
 ### быстре чем DFT, но еще не распараллелено
