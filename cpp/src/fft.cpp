@@ -1,16 +1,12 @@
 #include <complex>
-#include <iostream>
 #include <valarray>
-#include <string>
-#include <fstream>
-#include "reading_input.h"
-#include <thread>
+
 #include <vector>
+#include <thread>
+
+#include "./include/utils.h"
 
 const double PI = 3.141592653589793238460;
-
-typedef std::complex<double> Complex;
-typedef std::valarray<Complex> CArray;
 
 using namespace std;
 
@@ -43,7 +39,9 @@ CArray fft_iter(CArray &x)
 
 void task(CArray x, Complex &even_sum, Complex &odd_sum, int k, int N, int th_index, int th_count, Complex wkN, Complex wN2)
 {
-    for (int n = th_index * (N / 2) / th_count; n < (th_index + 1) * (N / 2) / th_count; n++) // цикл подлежит распараллеливанию на 4(?) потока
+    for (int n = th_index * (N / 2) / th_count;
+         n < (th_index + 1) * (N / 2) / th_count;
+         n++) // цикл подлежит распараллеливанию на 4(?) потока
     {
         Complex wkN2 = pow(wN2, k * n);
         even_sum += (x[2 * n]) * wkN2;
@@ -98,51 +96,4 @@ CArray fft_iter_parallel(CArray &x, int p)
     }
 
     return y;
-}
-
-int threads_count = 4; // default if not overwritten by cli arg
-
-int main(int argc, char **argv)
-{
-    CArray input;
-    int n;
-    if (argc >= 2)
-    {
-        try
-        {
-            input = read_input_file(argv[1], n);
-            cout << "Successfully parsed input" << endl;
-
-            if (argc > 2)
-            {
-                threads_count = stoi(argv[2]);
-            }
-        }
-        catch (...)
-        {
-            cout << "Error parsing input" << endl;
-            return 1;
-        }
-    }
-
-    CArray result = fft_iter_parallel(input, threads_count);
-
-    cout << endl
-         << "fft in parallel" << endl;
-    for (int i = 0; i < n; ++i)
-    {
-        cout << result[i] << endl;
-    }
-
-    cout << endl
-         << endl;
-
-    result = fft_iter(input);
-    cout << "fft in sequential" << endl;
-    for (int i = 0; i < n; ++i)
-    {
-        cout << result[i] << endl;
-    }
-
-    return 0;
 }
