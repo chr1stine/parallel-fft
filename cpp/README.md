@@ -1,19 +1,25 @@
 ### структура
 
-- `original.cpp` - образец функции на rosetta code, реализованный последовательно и рекурсивно.
 - `main.cpp` - реализация лабораторной. Там есть две функции: `fft_iter` - итеративный последовательный вариант и `fft_iter_parallel` - с использованием потоков.
-- `reading_input.*` - чтение из файла
+- `utils.cpp` - вспомогательные функции вроде чтения из файла или операотр сравнения для комплексных массивов
 
-### compiling
+### compile
 
-`g++ -pthread ./cpp/main.cpp ./cpp/reading_input.cpp -o ./cpp/main`
+1. `cd cpp`
+2. `cmake .`
+3. `make`
 
-### running
+### run
 
 Первым аргументом передается путь к файлу с входным вектором. Вторым опциональным аргументом передается количество потоков для распараллеливания.
 
-- `./cpp/main ./tests/input1` 
-- `./cpp/main ./tests/input1 2` 
+- `./main ./tests/input1` 
+- `./cpp/main ./tests/input1 2`
+
+## test
+
+- `./runUnitTests`
+- `./runPerfomanceTests`
 
 ### план по коду
 
