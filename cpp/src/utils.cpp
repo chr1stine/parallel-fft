@@ -2,6 +2,7 @@
 #include <valarray>
 #include <complex>
 #include <fstream>
+#include <iostream>
 
 #include "./include/utils.h"
 
@@ -27,7 +28,7 @@ Complex parse_one_line(string s)
         double realPart = std::stof(real);
         if (i >= s.size() - 1)
         {
-            throw "no imaginary part";
+            std::cout << "no imaginary part" << std::endl;
         }
 
         i++;
@@ -42,16 +43,15 @@ Complex parse_one_line(string s)
     }
     catch (const invalid_argument &e)
     {
-        throw "Error when parsing number";
+        std::cout << "Error when parsing number" << std::endl;
     }
 }
 
-CArray read_array(const char *file_name)
+CArray read_array(char *file_name)
 {
     ifstream myfile{file_name};
     string line;
     CArray input_array{};
-
     int n = 0;
     if (myfile.is_open())
     {
@@ -67,10 +67,9 @@ CArray read_array(const char *file_name)
         }
         myfile.close();
     }
-
     if (n == 0)
     {
-        throw "file is empty";
+        std::cout << "file is empty" << std::endl;
     }
 
     return input_array;
@@ -93,11 +92,29 @@ bool operator==(const CArray &lhs, const CArray &rhs)
     return true;
 }
 
+ostream &operator<<(ostream &out, const CArray &c)
+{
+    out << endl;
+    for (int i = 0; i < c.size(); i++)
+    {
+        out << "(";
+        out << to_string(c[i].real());
+        out << ",";
+        out << to_string(c[i].imag());
+        out << ")\n";
+    }
+    out << endl;
+
+    return out;
+}
+
 string comparison_failed_message(CArray y, CArray x)
 {
     string s = "";
 
     s += "\nExpected array: \n";
+    // s += to_string(x);
+    // x >> s;
     for (int i = 0; i < x.size(); i++)
     {
         s += "(";
@@ -108,6 +125,7 @@ string comparison_failed_message(CArray y, CArray x)
     }
 
     s += "\nActual array: \n";
+    // s += y;
     for (int i = 0; i < y.size(); i++)
     {
         s += "(";
@@ -118,6 +136,7 @@ string comparison_failed_message(CArray y, CArray x)
     }
 
     s += "\nAbsolute difference:\n";
+    // s += x;
     for (int i = 0; i < x.size(); i++)
     {
         s += to_string(abs(x[i] - y[i]));
