@@ -10,6 +10,8 @@ target_link_libraries(runUnitTests ${GTEST_LIBRARIES} pthread)
 
 # Locate benchmark
 find_package(benchmark REQUIRED)
+# set(BENCHMARK_OUT "./report.json")
+# set(BENCHMARK_OUT_FORMAT "json")
 add_executable(runPerfomanceTests tests/perf.cpp src/fft.cpp src/utils.cpp)
 target_link_libraries(runPerfomanceTests benchmark::benchmark pthread)
 
