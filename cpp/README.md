@@ -5,6 +5,8 @@
 
 ### compile
 
+*prerequisites*: [googletest](https://github.com/google/googletest/blob/main/googletest/README.md),[benchmark for googletest](https://github.com/google/benchmark)
+
 1. `cd cpp`
 2. `cmake .`
 3. `make`
