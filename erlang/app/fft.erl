@@ -8,70 +8,62 @@
 ]).
 -import(utils,[rearrange/1,split_to_lists/2]).
 -import(lists,[reverse/1]).
--export([sequential/1,parallel/2,join_tasks/4,task1/8]).
+-export([sequential/1,parallel/2,tasks/7,task/6]).
 
 sequential(X) ->
     Wn = nth_root_of_unity(length(X)),
     Wn2 = nth_root_of_unity(length(X)/2),
     Y = sequential(0,length(X)/2,Wn,Wn2,X,[],[]),
     Y.
-parallel(X,Threads) ->
+parallel(X,T) ->
     Wn = nth_root_of_unity(length(X)),
     Wn2 = nth_root_of_unity(length(X)/2),
-    Y = parallel_inner(X,Threads,length(X)/2,0,Wn,Wn2),
+    PartsOfX = split_to_lists(T,X),
+    Y = parallel_loop(PartsOfX,0,length(X)/2,T,[],[],Wn,Wn2),
     Y.
 
-parallel_inner(_,_,Stop,K,_,_) when K == Stop ->
-    receive
-        Y ->
-            Y
-        end;
-parallel_inner(X,Threads,_,_,Wn,Wn2) ->
-    JoinerPID = spawn(
-        fft,
-        join_tasks,
-        [self(),[],[],Threads]
-    ),
-    PartsOfX = split_to_lists(Threads,X),
-    Y = spawn_tasks(JoinerPID,PartsOfX,0,Threads,Wn,Wn2),
-    Y.
-
-join_tasks(SpawnerPID,Y1,Y2,0) ->
-    SpawnerPID ! reverse(Y1)++reverse(Y2);
-join_tasks(SpawnerPID,Y1,Y2,N) ->
-    receive
-        {NewY1,NewY2} ->
-            join_tasks(SpawnerPID,NewY1++Y1,NewY2++Y2,N-1)
-        end.
-   
-
-spawn_tasks(_,[],_,_,_,_) ->
-    receive
-        ResultPart ->
-            ResultPart
-        end;
-spawn_tasks(JoinerPID,PartsOfX,TaskIndex,Threads,Wn,Wn2) ->
-    [Part|Rest] = PartsOfX,
-    spawn(fft,task1,[
-        JoinerPID,
-        Part,
-        TaskIndex*length(Part)/2,
-        (TaskIndex+1)*length(Part)/2,
-        Wn,
-        Wn2,
-        [],
-        []
-    ]),
-    spawn_tasks(JoinerPID,Rest,TaskIndex+1,Threads,Wn,Wn2).
-
-task1(JoinerPID,X,K,Stop,Wn,Wn2,Y1,Y2) when K < Stop ->
-    {EvenSum,OddSum} = accumulate_sums(X,K,0,length(X)/2,Wn2,{0,0},{0,0}),
+parallel_loop(_,K,Stop,_,EvenY,OddY,_,_) when K == Stop->
+    reverse(EvenY)++reverse(OddY);
+parallel_loop(PartsOfX,K,Stop,T,EvenY,OddY,Wn,Wn2) ->
+    
     Wkn = pow(Wn,K),
-    task1(JoinerPID,X,K+1,Stop,Wn,Wn2,
-        [sum(EvenSum,mult(OddSum,Wkn))|Y1],
-        [diff(EvenSum,mult(OddSum,Wkn))|Y2]);
-task1(JoinerPID,_,_,_,_,_,Y1,Y2) ->
-    JoinerPID ! {Y1,Y2}.
+    EvenSum = {0,0},
+    OddSum = {0,0},
+    {NewEvenSum,NewOddSum} = tasks(PartsOfX,K,0,T,Wn2,EvenSum,OddSum),
+
+    NewEvenY = sum(NewEvenSum,mult(NewOddSum,Wkn)),
+    NewOddY = diff(NewEvenSum,mult(NewOddSum,Wkn)),
+
+    parallel_loop(PartsOfX,K+1,Stop,T,[NewEvenY|EvenY],[NewOddY|OddY],Wn,Wn2).
+
+tasks([],_,Ti,T,_,TotalEvenSum,TotalOddSum) when Ti == 2*T->
+    {TotalEvenSum, TotalOddSum};
+tasks([],K,Ti,T,Wn2,TotalEvenSum,TotalOddSum)-> 
+    receive
+        {EvenSum,OddSum} ->
+            tasks([],K,Ti+1,T,Wn2,sum(TotalEvenSum,EvenSum),sum(TotalOddSum,OddSum))
+    end;
+tasks(PartsOfX,K,Ti,T,Wn2,TotalEvenSum,TotalOddSum) ->
+    [Part|RestParts] = PartsOfX,
+    Nfrom = Ti*length(Part)/2,
+    Nto = (Ti+1)*length(Part)/2,
+    spawn(fft,task,[
+        self(),
+        Part,
+        K,
+        Nfrom,
+        Nto,
+        Wn2
+    ]),
+    tasks(RestParts,K,Ti+1,T,Wn2,TotalEvenSum,TotalOddSum).
+
+task(JoinerPID,Part,K,Nfrom,Nto,Wn2)->
+    {EvenSum,OddSum} = accumulate_sums(
+        Part,K,Nfrom,Nto,Wn2,{0,0},{0,0}
+    ),
+    JoinerPID ! {EvenSum,OddSum}.
+
+
 
 sequential(K,Stop,Wn,Wn2,X,Y1,Y2) when K < Stop ->
     Wkn = pow(Wn,K),
